@@ -18,3 +18,13 @@ CPU sum: 18874367.0000
 GPU sum: 18874367.0000
 Absolute error: 0.0000
 Validation PASSED
+
+unified_memory
+--------------
+CUDA device: NVIDIA GeForce RTX 5080
+Elements: 16777216
+Unified addressing: 1, managed memory: 1
+Kernel time: 106.2426 ms
+Effective bandwidth: 1.8950 GB/s
+Max absolute error: 0.0000
+Validation PASSED
