@@ -13,10 +13,22 @@ add_executable(cuda_gemm_demo
     src/gemm/main.cu
 )
 
+add_executable(cuda_stream_overlap_demo
+    src/stream_overlap/main.cu
+)
+
 set_target_properties(cuda_gemm_demo PROPERTIES
     CUDA_SEPARABLE_COMPILATION ON
 )
 
+set_target_properties(cuda_stream_overlap_demo PROPERTIES
+    CUDA_SEPARABLE_COMPILATION ON
+)
+
 target_compile_options(cuda_gemm_demo PRIVATE
+    $<$<COMPILE_LANGUAGE:CUDA>:--expt-relaxed-constexpr>
+)
+
+target_compile_options(cuda_stream_overlap_demo PRIVATE
     $<$<COMPILE_LANGUAGE:CUDA>:--expt-relaxed-constexpr>
 )

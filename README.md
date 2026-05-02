@@ -1,6 +1,11 @@
 # cuda_demo
 
-A compact C++/CUDA GEMM demo under `src/gemm/` that computes `C = A x B` with a tiled shared-memory CUDA kernel, validates sampled GPU output elements against CPU reference calculations, and prints timing plus numerical error.
+A collection of compact C++/CUDA demos.
+
+## Demos
+
+- `src/gemm/`: tiled shared-memory GEMM for `C = A x B`, with sampled CPU validation.
+- `src/stream_overlap/`: pinned host memory plus `cudaMemcpyAsync` and multiple CUDA streams to overlap host-device copies with kernel execution.
 
 ## Requirements
 
@@ -19,6 +24,7 @@ cmake --build build --config Release
 
 ```powershell
 .\build\Release\cuda_gemm_demo.exe
+.\build\Release\cuda_stream_overlap_demo.exe
 ```
 
-The program exits with code `0` when the CUDA result matches the CPU reference within tolerance.
+Each program exits with code `0` when validation passes.
