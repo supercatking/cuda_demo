@@ -6,3 +6,15 @@ Kernel time: 10.5066 ms
 Effective bandwidth: 19.1619 GB/s
 Max absolute error: 0.0000
 Validation PASSED
+
+reduction
+---------
+CUDA device: NVIDIA GeForce RTX 5080
+Elements: 16777216
+Blocks: 32768
+Kernel time: 12.4534 ms
+Read bandwidth: 5.3888 GB/s
+CPU sum: 18874367.0000
+GPU sum: 18874367.0000
+Absolute error: 0.0000
+Validation PASSED

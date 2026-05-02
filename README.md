@@ -7,6 +7,7 @@ A collection of compact C++/CUDA demos.
 - `src/gemm/`: tiled shared-memory GEMM for `C = A x B`, with sampled CPU validation.
 - `src/stream_overlap/`: pinned host memory plus `cudaMemcpyAsync` and multiple CUDA streams to overlap host-device copies with kernel execution.
 - `src/vector_add/`: basic CUDA vector addition with full CPU validation.
+- `src/reduction/`: shared-memory block reduction for summing a large vector.
 
 ## Requirements
 
@@ -27,6 +28,7 @@ cmake --build build --config Release
 .\build\Release\cuda_gemm_demo.exe
 .\build\Release\cuda_stream_overlap_demo.exe
 .\build\Release\cuda_vector_add_demo.exe
+.\build\Release\cuda_reduction_demo.exe
 ```
 
 Each program exits with code `0` when validation passes.
