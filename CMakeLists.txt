@@ -9,26 +9,16 @@ endif()
 set(CMAKE_CUDA_STANDARD 17)
 set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 
-add_executable(cuda_gemm_demo
-    src/gemm/main.cu
-)
+function(add_cuda_demo target source)
+    add_executable(${target} ${source})
+    set_target_properties(${target} PROPERTIES
+        CUDA_SEPARABLE_COMPILATION ON
+    )
+    target_compile_options(${target} PRIVATE
+        $<$<COMPILE_LANGUAGE:CUDA>:--expt-relaxed-constexpr>
+    )
+endfunction()
 
-add_executable(cuda_stream_overlap_demo
-    src/stream_overlap/main.cu
-)
-
-set_target_properties(cuda_gemm_demo PROPERTIES
-    CUDA_SEPARABLE_COMPILATION ON
-)
-
-set_target_properties(cuda_stream_overlap_demo PROPERTIES
-    CUDA_SEPARABLE_COMPILATION ON
-)
-
-target_compile_options(cuda_gemm_demo PRIVATE
-    $<$<COMPILE_LANGUAGE:CUDA>:--expt-relaxed-constexpr>
-)
-
-target_compile_options(cuda_stream_overlap_demo PRIVATE
-    $<$<COMPILE_LANGUAGE:CUDA>:--expt-relaxed-constexpr>
-)
+add_cuda_demo(cuda_gemm_demo src/gemm/main.cu)
+add_cuda_demo(cuda_stream_overlap_demo src/stream_overlap/main.cu)
+add_cuda_demo(cuda_vector_add_demo src/vector_add/main.cu)

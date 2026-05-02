@@ -1,0 +1,8 @@
+vector_add
+----------
+CUDA device: NVIDIA GeForce RTX 5080
+Vector elements: 16777216
+Kernel time: 10.5066 ms
+Effective bandwidth: 19.1619 GB/s
+Max absolute error: 0.0000
+Validation PASSED
