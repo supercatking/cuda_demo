@@ -1,6 +1,6 @@
 # cuda_demo
 
-A compact C++/CUDA GEMM demo that computes `C = A x B` with a tiled shared-memory CUDA kernel, validates the GPU output against a CPU reference implementation, and prints timing plus numerical error.
+A compact C++/CUDA GEMM demo under `src/gemm/` that computes `C = A x B` with a tiled shared-memory CUDA kernel, validates sampled GPU output elements against CPU reference calculations, and prints timing plus numerical error.
 
 ## Requirements
 

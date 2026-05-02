@@ -9,14 +9,15 @@
 #include <random>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace {
 
 constexpr int kTileSize = 16;
-constexpr int kM = 256;
-constexpr int kN = 256;
-constexpr int kK = 256;
+constexpr int kM = 4096;
+constexpr int kN = 4096;
+constexpr int kK = 4096;
 constexpr float kTolerance = 1.0e-2f;
 
 void checkCuda(cudaError_t result, const char* expression, const char* file, int line) {
@@ -70,24 +71,33 @@ std::vector<float> makeRandomMatrix(int rows, int cols, unsigned int seed) {
     return matrix;
 }
 
-std::vector<float> cpuGemm(const std::vector<float>& a, const std::vector<float>& b, int m, int n, int k) {
-    std::vector<float> c(static_cast<size_t>(m) * n, 0.0f);
-    for (int row = 0; row < m; ++row) {
-        for (int col = 0; col < n; ++col) {
-            float sum = 0.0f;
-            for (int inner = 0; inner < k; ++inner) {
-                sum += a[row * k + inner] * b[inner * n + col];
-            }
-            c[row * n + col] = sum;
-        }
+float cpuGemmElement(const std::vector<float>& a, const std::vector<float>& b, int row, int col, int n, int k) {
+    float sum = 0.0f;
+    for (int inner = 0; inner < k; ++inner) {
+        sum += a[row * k + inner] * b[inner * n + col];
     }
-    return c;
+    return sum;
 }
 
-float maxAbsError(const std::vector<float>& expected, const std::vector<float>& actual) {
+std::vector<std::pair<int, int>> validationPoints(int m, int n) {
+    std::vector<std::pair<int, int>> points;
+    const int rows[] = {0, 1, m / 3, m / 2, m - 2, m - 1};
+    const int cols[] = {0, 2, n / 4, n / 2, n - 3, n - 1};
+    for (int row : rows) {
+        for (int col : cols) {
+            points.emplace_back(row, col);
+        }
+    }
+    return points;
+}
+
+float maxSampledAbsError(const std::vector<float>& a, const std::vector<float>& b, const std::vector<float>& c,
+                         int m, int n, int k) {
     float maxError = 0.0f;
-    for (size_t i = 0; i < expected.size(); ++i) {
-        maxError = std::max(maxError, std::fabs(expected[i] - actual[i]));
+    for (const auto& [row, col] : validationPoints(m, n)) {
+        const float expected = cpuGemmElement(a, b, row, col, n, k);
+        const float actual = c[row * n + col];
+        maxError = std::max(maxError, std::fabs(expected - actual));
     }
     return maxError;
 }
@@ -147,18 +157,17 @@ int main() {
         CHECK_CUDA(cudaEventElapsedTime(&gpuMs, start, stop));
         CHECK_CUDA(cudaMemcpy(hostC.data(), deviceC, bytesC, cudaMemcpyDeviceToHost));
 
-        const auto cpuStart = std::chrono::high_resolution_clock::now();
-        const auto referenceC = cpuGemm(hostA, hostB, kM, kN, kK);
-        const auto cpuStop = std::chrono::high_resolution_clock::now();
-        const std::chrono::duration<double, std::milli> cpuMs = cpuStop - cpuStart;
+        const auto validationStart = std::chrono::high_resolution_clock::now();
+        const float error = maxSampledAbsError(hostA, hostB, hostC, kM, kN, kK);
+        const auto validationStop = std::chrono::high_resolution_clock::now();
+        const std::chrono::duration<double, std::milli> validationMs = validationStop - validationStart;
 
-        const float error = maxAbsError(referenceC, hostC);
         const double gflops = (2.0 * kM * kN * kK) / (gpuMs * 1.0e6);
 
         std::cout << std::fixed << std::setprecision(4);
         std::cout << "GPU time: " << gpuMs << " ms (" << gflops << " GFLOP/s)\n";
-        std::cout << "CPU reference time: " << cpuMs.count() << " ms\n";
-        std::cout << "Max absolute error: " << error << "\n";
+        std::cout << "CPU sampled validation time: " << validationMs.count() << " ms\n";
+        std::cout << "Max sampled absolute error: " << error << "\n";
 
         CHECK_CUDA(cudaEventDestroy(start));
         CHECK_CUDA(cudaEventDestroy(stop));

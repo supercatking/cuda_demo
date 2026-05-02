@@ -10,7 +10,7 @@ set(CMAKE_CUDA_STANDARD 17)
 set(CMAKE_CUDA_STANDARD_REQUIRED ON)
 
 add_executable(cuda_gemm_demo
-    src/main.cu
+    src/gemm/main.cu
 )
 
 set_target_properties(cuda_gemm_demo PROPERTIES
